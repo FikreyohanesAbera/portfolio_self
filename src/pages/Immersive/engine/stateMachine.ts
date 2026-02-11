@@ -1,4 +1,15 @@
-import type { ImmersiveModel, ImmersiveState, StationId, TravelPlan } from "./types"
+import type { ImmersiveModel, StationId, TravelPlan, ImmersiveState } from "./types"
+
+export type Action =
+  | { type: "SET_REDUCED_MOTION"; value: boolean }
+  | { type: "TOGGLE_EXPRESS" }
+  | { type: "OPEN_MAP" }
+  | { type: "CLOSE_MAP" }
+  | { type: "REQUEST_TRAVEL"; plan: TravelPlan }
+  | { type: "TICK_MOTION"; nextT: number; nextV: number }
+  | { type: "DOCKED" }
+  | { type: "SKIP_TRAVEL_TO_DOCK" }
+  | { type: "DEPART" }
 
 export function createInitialModel(): ImmersiveModel {
   return {
@@ -10,22 +21,13 @@ export function createInitialModel(): ImmersiveModel {
     reducedMotion: false,
 
     motion: { progressT: 0, velocity: 0 },
-
     stateBeforeMap: null
   }
 }
 
-type Action =
-  | { type: "SET_REDUCED_MOTION"; value: boolean }
-  | { type: "TOGGLE_EXPRESS" }
-  | { type: "OPEN_MAP" }
-  | { type: "CLOSE_MAP" }
-  | { type: "REQUEST_TRAVEL"; plan: TravelPlan }
-  | { type: "TICK_MOTION"; nextT: number; nextV: number }
-  | { type: "DOCKED" }
-  | { type: "SKIP_TRAVEL_TO_DOCK" }
-  | { type: "DEPART" }
-  | { type: "SET_DOCKED"; at: StationId }
+function clamp01(x: number) {
+  return Math.max(0, Math.min(1, x))
+}
 
 export function reducer(state: ImmersiveModel, action: Action): ImmersiveModel {
   switch (action.type) {
@@ -35,39 +37,52 @@ export function reducer(state: ImmersiveModel, action: Action): ImmersiveModel {
     case "TOGGLE_EXPRESS":
       return { ...state, express: !state.express }
 
-    case "OPEN_MAP": {
-      if (state.state === "MAP") return state
+    case "OPEN_MAP":
       return {
         ...state,
         stateBeforeMap: state.state,
-        state: "MAP",
-        motion: { ...state.motion, velocity: 0 }
+        state: "MAP"
       }
-    }
 
-    case "CLOSE_MAP": {
-      if (state.state !== "MAP") return state
-      const back: ImmersiveState = state.stateBeforeMap ?? "READING"
-      return { ...state, state: back, stateBeforeMap: null }
-    }
+    case "CLOSE_MAP":
+      return {
+        ...state,
+        state: state.stateBeforeMap ?? (state.plan ? "TRAVEL" : "READING"),
+        stateBeforeMap: null
+      }
 
     case "REQUEST_TRAVEL": {
-      // When starting a new leg, reset progress and give it a small initial cruise speed.
-      // We keep dockedAt as the current station until DOCKED.
+      const baseCruise = state.express ? 0.10 : 0.07
+
       return {
         ...state,
         state: "TRAVEL",
         plan: action.plan,
-        motion: { progressT: 0, velocity: state.express ? 0.42 : 0.28 },
-        stateBeforeMap: null
+        // While traveling, dockedAt can remain where we were parked.
+        // We update dockedAt when we actually dock.
+        motion: {
+          progressT: 0,
+          velocity: baseCruise
+        }
       }
     }
 
     case "TICK_MOTION": {
-      if (!state.plan) return state
+      // If we are very near the end, switch to DOCKING for the last segment.
+      const nextT = clamp01(action.nextT)
+      const nextV = action.nextV
+
+      let nextState: ImmersiveState = state.state
+      if (state.plan) {
+        if (nextT >= 0.86 && (state.state === "TRAVEL" || state.state === "HUB")) {
+          nextState = "DOCKING"
+        }
+      }
+
       return {
         ...state,
-        motion: { progressT: action.nextT, velocity: action.nextV }
+        state: nextState,
+        motion: { progressT: nextT, velocity: nextV }
       }
     }
 
@@ -77,7 +92,8 @@ export function reducer(state: ImmersiveModel, action: Action): ImmersiveModel {
         ...state,
         state: "READING",
         dockedAt: state.plan.to,
-        motion: { progressT: 1, velocity: 0 }
+        motion: { progressT: 1, velocity: 0 },
+        plan: null
       }
     }
 
@@ -87,19 +103,22 @@ export function reducer(state: ImmersiveModel, action: Action): ImmersiveModel {
         ...state,
         state: "READING",
         dockedAt: state.plan.to,
-        motion: { progressT: 1, velocity: 0 }
+        motion: { progressT: 1, velocity: 0 },
+        plan: null
       }
     }
 
     case "DEPART": {
-      // "Depart" is intentionally not an automatic travel without a destination.
-      // Returning to HUB makes the controls feel responsive.
-      if (state.state !== "READING") return state
-      return { ...state, state: "HUB" }
+      // Leave reading mode but remain docked at the current station.
+      // This re-enables navigation buttons without starting travel automatically.
+      return {
+        ...state,
+        state: "HUB",
+        plan: null,
+        motion: { progressT: 0, velocity: 0 }
+      }
     }
 
-    case "SET_DOCKED":
-      return { ...state, dockedAt: action.at }
 
     default:
       return state

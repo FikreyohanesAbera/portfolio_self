@@ -12,9 +12,6 @@ export type TravelPlan = {
   from: StationId
   to: StationId
   edgeId: string
-
-  // If direct travel is not possible, we route via hub:
-  // leg 1 ends at hub, then we auto-continue to transferTo.
   transferTo?: StationId
 }
 
@@ -29,7 +26,11 @@ export type WorldEdge = {
   id: string
   from: StationId
   to: StationId
-  control: { x: number; z: number }
+
+  // Cubic Bézier controls in x/z plane (y is handled in the three dimensional layer).
+  // The curve is: P0(start) -> C1 -> C2 -> P3(end)
+  c1: { x: number; z: number }
+  c2: { x: number; z: number }
 }
 
 export type WorldGraph = {
@@ -46,7 +47,5 @@ export type ImmersiveModel = {
   reducedMotion: boolean
 
   motion: Motion
-
-  // Used only for returning from MAP to the prior state.
   stateBeforeMap: ImmersiveState | null
 }

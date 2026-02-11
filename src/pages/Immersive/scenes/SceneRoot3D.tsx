@@ -94,6 +94,8 @@ export default function SceneRoot3D({
     // If you want a more stable reading camera, we can add a gentle offset here later.
     void fromNode
     void toNode
+    console.log("frame", model.state, model.plan?.from, model.plan?.to, model.motion.progressT, model.motion.velocity)
+
   })
 
   // If you want a consistent starting orbit camera, set it once:

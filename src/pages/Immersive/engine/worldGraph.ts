@@ -1,5 +1,6 @@
 import { portfolio } from "../../../content/portfolio"
-import { WorldGraph, StationId } from "./types"
+import type { WorldGraph, StationId, WorldEdge } from "./types"
+import { makeCubicControls, reverseControls } from "./curve"
 
 export function buildWorldGraph(): WorldGraph {
   const nodes = [
@@ -26,26 +27,53 @@ export function buildWorldGraph(): WorldGraph {
 
   const allNodes = [...nodes, ...projectNodes]
 
-  function edge2(from: StationId, to: StationId, cx: number, cz: number) {
-    return [
-      { id: `${from}__${to}`, from, to, control: { x: cx, z: cz } },
-      { id: `${to}__${from}`, from: to, to: from, control: { x: cx, z: cz } }
-    ] as const
+  function nodePos(id: StationId) {
+    const n = allNodes.find((x) => x.id === id)
+    if (!n) throw new Error(`Unknown node: ${id}`)
+    return n.pos
   }
 
-  const edges = [
-    ...edge2("hub", "education", -6, -2),
-    ...edge2("hub", "work", 6, -2),
-    ...edge2("hub", "projects", 7, 6),
-    ...edge2("hub", "tools", -7, 6),
+  function edge2(from: StationId, to: StationId): WorldEdge[] {
+    const a = nodePos(from)
+    const b = nodePos(to)
 
-    // Optional cross-links
-    ...edge2("education", "tools", -14, 2),
-    ...edge2("work", "projects", 14, 2)
+    const { c1, c2 } = makeCubicControls(from, to, a, b)
+
+    const forward: WorldEdge = {
+      id: `${from}__${to}`,
+      from,
+      to,
+      c1,
+      c2
+    }
+
+    const reversedControls = reverseControls({ c1, c2 })
+    const backward: WorldEdge = {
+      id: `${to}__${from}`,
+      from: to,
+      to: from,
+      c1: reversedControls.c1,
+      c2: reversedControls.c2
+    }
+
+    return [forward, backward]
+  }
+
+  // Hub to districts
+  const edges: WorldEdge[] = [
+    ...edge2("hub", "education"),
+    ...edge2("hub", "work"),
+    ...edge2("hub", "projects"),
+    ...edge2("hub", "tools"),
+
+    // Cross-links (optional, now also curved and bidirectional)
+    ...edge2("education", "tools"),
+    ...edge2("work", "projects")
   ]
 
+  // Projects district to each project node
   for (const pn of projectNodes) {
-    edges.push(...edge2("projects", pn.id, 16, 10))
+    edges.push(...edge2("projects", pn.id))
   }
 
   return { nodes: allNodes, edges }

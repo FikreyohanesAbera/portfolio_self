@@ -1,101 +1,85 @@
-import { useEffect, useRef } from "react"
-import { Action } from "./stateMachine"
-import { ImmersiveModel, StationId, TravelPlan, WorldGraph } from "./types"
+import { useEffect } from "react"
+import type { Action } from "./stateMachine"
+import type { ImmersiveModel, StationId, TravelPlan, WorldGraph } from "./types"
 import { applyScrollImpulse } from "./physics"
-import { findEdge } from "./worldGraph"
+import { tryFindEdge } from "./worldGraph"
 
+/**
+ * Inputs:
+ * - M toggles map
+ * - Escape closes map
+ * - During TRAVEL/DOCKING: wheel and Arrow keys control throttle (impulses)
+ * - During READING: wheel scrolls panel naturally (we do NOT preventDefault)
+ * - During MAP: wheel does nothing (preventDefault)
+ */
 export function useInputs(args: {
   graph: WorldGraph
   model: ImmersiveModel
   dispatch: (a: Action) => void
   onImpulse: (impulse: number) => void
+  onRequestTravel: (to: StationId) => void
 }) {
-  const { graph, model, dispatch, onImpulse } = args
-  const wheelLocked = useRef(false)
+  const { model, dispatch, onImpulse, onRequestTravel } = args
 
   useEffect(() => {
     function onKeyDown(e: KeyboardEvent) {
+      // Map toggle
       if (e.key === "m" || e.key === "M") {
         e.preventDefault()
-        if (model.state === "MAP") dispatch({ type: "CLOSE_MAP" })
-        else dispatch({ type: "OPEN_MAP" })
+        if (model.state === "MAP") dispatch({ type: "CLOSE_MAP" } as any)
+        else dispatch({ type: "OPEN_MAP" } as any)
+        return
       }
 
+      // Escape closes map
       if (e.key === "Escape") {
-        if (model.state === "MAP") dispatch({ type: "CLOSE_MAP" })
+        if (model.state === "MAP") {
+          e.preventDefault()
+          dispatch({ type: "CLOSE_MAP" } as any)
+        }
+        return
       }
 
       // Keyboard throttle in TRAVEL/DOCKING
       if (model.state === "TRAVEL" || model.state === "DOCKING") {
         if (e.key === "ArrowUp") {
           e.preventDefault()
-          onImpulse(0.06)
+          onImpulse(0.08)
+          return
         }
         if (e.key === "ArrowDown") {
           e.preventDefault()
-          onImpulse(-0.06)
-        }
-      }
-
-      // Hub selection
-      if (model.state === "HUB") {
-        if (e.key === "Enter") {
-          e.preventDefault()
-          const plan = buildPlan(graph, model.dockedAt, model.selectedStationInHub)
-          dispatch({ type: "REQUEST_TRAVEL", plan })
-        }
-        if (e.key === "ArrowLeft") {
-          e.preventDefault()
-          cycleHubSelection(dispatch, model.selectedStationInHub, -1)
-        }
-        if (e.key === "ArrowRight") {
-          e.preventDefault()
-          cycleHubSelection(dispatch, model.selectedStationInHub, +1)
+          onImpulse(-0.08)
+          return
         }
       }
     }
 
     window.addEventListener("keydown", onKeyDown)
     return () => window.removeEventListener("keydown", onKeyDown)
-  }, [dispatch, graph, model.dockedAt, model.selectedStationInHub, model.state, onImpulse])
+  }, [dispatch, model.state, onImpulse])
 
   useEffect(() => {
     function onWheel(e: WheelEvent) {
       if (model.state === "TRAVEL" || model.state === "DOCKING") {
         // Prevent page scroll while traveling.
         e.preventDefault()
-        const impulse = applyScrollImpulse(model, e.deltaY)
+        const impulse = applyScrollImpulse(e.deltaY)
         onImpulse(impulse)
         return
       }
 
-      // HUB: allow default scroll (page does not scroll anyway), but we can keep it passive.
-      // READING: content panel should scroll naturally, so do not prevent default.
-      // MAP: prevent scroll to avoid accidental page scroll.
+      // MAP: prevent scroll so the page does not move behind the overlay.
       if (model.state === "MAP") {
         e.preventDefault()
+        return
       }
+
+      // HUB: allow default (no page scroll usually)
+      // READING: allow default so the panel content scrolls.
     }
 
-    // Non-passive because we conditionally prevent default.
     window.addEventListener("wheel", onWheel, { passive: false })
     return () => window.removeEventListener("wheel", onWheel as any)
-  }, [model, onImpulse])
-
-  useEffect(() => {
-    // Guard against accidental browser back swipe or overscroll patterns in some environments.
-    wheelLocked.current = model.state === "TRAVEL" || model.state === "DOCKING"
-  }, [model.state])
-}
-
-function buildPlan(graph: WorldGraph, from: StationId, to: StationId): TravelPlan {
-  const e = findEdge(graph, from, to)
-  return { from, to, edgeId: e.id }
-}
-
-function cycleHubSelection(dispatch: (a: Action) => void, current: StationId, dir: -1 | 1) {
-  const options: StationId[] = ["education", "work", "projects", "tools"]
-  const idx = options.indexOf(current)
-  const next = options[(idx + dir + options.length) % options.length]
-  dispatch({ type: "SELECT_IN_HUB", station: next })
+  }, [model.state, onImpulse])
 }

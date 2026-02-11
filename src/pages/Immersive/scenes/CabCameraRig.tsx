@@ -1,11 +1,13 @@
+import React from "react"
 import { useFrame, useThree } from "@react-three/fiber"
 import { Vector3 } from "three"
-import type { WorldGraph } from "../engine/worldGraph"
-import type { ImmersiveModel } from "../engine/types"
+import type { WorldGraph, ImmersiveModel } from "../engine/types"
+import { evalEdgePosition } from "../engine/curve"
 
 type Props = {
   graph: WorldGraph
   model: ImmersiveModel
+  enabled?: boolean
 }
 
 // Standing inside trolley: slightly above floor, slightly behind the front.
@@ -13,13 +15,12 @@ const CAB_UP = 1.55
 const CAB_BACK = 0.25
 const LOOK_AHEAD = 2.2
 
-export default function CabCameraRig({ graph, model }: Props) {
+export default function CabCameraRig({ graph, model, enabled = true }: Props) {
   const { camera } = useThree()
 
   useFrame((_, dt) => {
+    if (!enabled) return
     if (!model.plan) return
-
-    // In hub, we let OrbitControls own the camera.
     if (model.state === "HUB") return
 
     const from = graph.nodes.find((n) => n.id === model.plan!.from)
@@ -27,41 +28,37 @@ export default function CabCameraRig({ graph, model }: Props) {
     const edge = graph.edges.find((e) => e.id === model.plan!.edgeId)
     if (!from || !to || !edge) return
 
-    const t = model.motion.progressT
+    const t = clamp01(model.motion.progressT)
 
-    const p = bezierPos(from.pos.x, from.pos.z, edge.control.x, edge.control.z, to.pos.x, to.pos.z, t)
-    const f = bezierTangent(from.pos.x, from.pos.z, edge.control.x, edge.control.z, to.pos.x, to.pos.z, t)
+    // Use your shared curve evaluator (works with any edge path representation).
+    const p = evalEdgePosition(edge as any, from as any, to as any, t)
+    const p2 = evalEdgePosition(edge as any, from as any, to as any, clamp01(t + 0.01))
 
-    // Forward direction in the XZ plane
-    const forward = new Vector3(f.x, 0, f.z).normalize()
-    const up = new Vector3(0, 1, 0)
+    if (!p || !p2) return
+    if (typeof p.x !== "number" || typeof p.z !== "number") return
+    if (typeof p2.x !== "number" || typeof p2.z !== "number") return
 
-    // Camera position inside the trolley, slightly back from the front.
+    const forward = new Vector3(p2.x - p.x, 0, p2.z - p.z)
+    if (forward.lengthSq() < 1e-10) return
+    forward.normalize()
+
+    // Camera position inside the trolley
     const camPos = new Vector3(p.x, CAB_UP, p.z).add(forward.clone().multiplyScalar(-CAB_BACK))
 
-    // Look point ahead along the track.
+    // Look point ahead along the track
     const lookPos = new Vector3(p.x, CAB_UP * 0.72, p.z).add(forward.clone().multiplyScalar(LOOK_AHEAD))
 
-    // Smooth motion
-    const k = model.reducedMotion ? 0.35 : 1 - Math.pow(0.001, dt)
+    const dtSafe = Math.min(dt, 0.05)
+    const k = model.reducedMotion ? 0.35 : 1 - Math.pow(0.001, dtSafe)
+
     camera.position.lerp(camPos, k)
-    camera.up.lerp(up, k)
+    camera.up.lerp(new Vector3(0, 1, 0), k)
     camera.lookAt(lookPos)
   })
 
   return null
 }
 
-function bezierPos(x0: number, z0: number, x1: number, z1: number, x2: number, z2: number, t: number) {
-  const u = 1 - t
-  const x = u * u * x0 + 2 * u * t * x1 + t * t * x2
-  const z = u * u * z0 + 2 * u * t * z1 + t * t * z2
-  return { x, z }
-}
-
-function bezierTangent(x0: number, z0: number, x1: number, z1: number, x2: number, z2: number, t: number) {
-  // Derivative of quadratic bezier
-  const x = 2 * (1 - t) * (x1 - x0) + 2 * t * (x2 - x1)
-  const z = 2 * (1 - t) * (z1 - z0) + 2 * t * (z2 - z1)
-  return { x, z }
+function clamp01(x: number) {
+  return Math.max(0, Math.min(1, x))
 }
