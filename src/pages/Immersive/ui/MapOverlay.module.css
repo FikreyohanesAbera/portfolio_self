@@ -1,0 +1,35 @@
+.backdrop {
+  position: absolute;
+  inset: 0;
+  z-index: 80;
+  background: rgba(4, 6, 10, 0.68);
+  backdrop-filter: blur(10px);
+}
+
+.panel {
+  position: absolute;
+  left: 16px;
+  top: 88px;
+  width: min(560px, calc(100% - 32px));
+  height: min(520px, calc(100% - 120px));
+  z-index: 90;
+
+  border-radius: 14px;
+  border: 1px solid rgba(180, 200, 255, 0.18);
+  background: rgba(10, 12, 18, 0.78);
+  overflow: hidden;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 12px;
+  border-bottom: 1px solid rgba(180, 200, 255, 0.12);
+  color: rgba(235, 242, 255, 0.92);
+}
+
+.canvasWrap {
+  width: 100%;
+  height: 100%;
+}

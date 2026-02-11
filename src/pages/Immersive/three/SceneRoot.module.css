@@ -1,0 +1,49 @@
+.uiLayer {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background-size: cover;
+  background-position: center;
+  /* Subtle theme tint over the 3d. */
+  background-repeat: no-repeat;
+  background-image: radial-gradient(1200px 900px at 30% 10%, rgba(143,178,255,0.12) 0%, rgba(7,10,16,0) 55%);
+}
+
+.debug {
+  position: absolute;
+  left: 10px;
+  bottom: 10px;
+  pointer-events: none;
+  padding: 10px 12px;
+  border-radius: 14px;
+  border: 1px solid rgba(255,255,255,0.12);
+  background: rgba(0,0,0,0.35);
+  color: rgba(255,255,255,0.8);
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+.perfHint {
+  position: absolute;
+  right: 10px;
+  bottom: 10px;
+  pointer-events: auto;
+  max-width: 380px;
+  padding: 12px 12px;
+  border-radius: 16px;
+  border: 1px solid rgba(255,255,255,0.14);
+  background: rgba(10, 14, 22, 0.72);
+  color: rgba(255,255,255,0.84);
+  line-height: 1.5;
+  font-size: 13px;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.45);
+}
+
+.perfLink {
+  display: inline-flex;
+  margin-left: 10px;
+  padding: 8px 10px;
+  border-radius: 12px;
+  border: 1px solid rgba(143,178,255,0.26);
+  background: rgba(143,178,255,0.12);
+}

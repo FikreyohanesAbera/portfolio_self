@@ -1,0 +1,41 @@
+.hint {
+  position: absolute;
+  left: 10px;
+  top: 62px;
+  pointer-events: none;
+  padding: 10px 12px;
+  border-radius: 16px;
+  border: 1px solid rgba(255,255,255,0.12);
+  background: rgba(0,0,0,0.28);
+  color: rgba(255,255,255,0.74);
+  font-size: 13px;
+  line-height: 1.45;
+  backdrop-filter: blur(10px);
+  max-width: 680px;
+}
+
+.row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+}
+
+.rowSmall {
+  margin-top: 6px;
+  color: rgba(255,255,255,0.62);
+  font-size: 12px;
+}
+
+.kbd {
+  padding: 4px 7px;
+  border-radius: 10px;
+  border: 1px solid rgba(255,255,255,0.16);
+  background: rgba(255,255,255,0.06);
+  color: rgba(255,255,255,0.85);
+  font-size: 12px;
+}
+
+.sep {
+  opacity: 0.6;
+}

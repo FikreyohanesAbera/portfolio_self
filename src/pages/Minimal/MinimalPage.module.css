@@ -1,0 +1,321 @@
+.page {
+  width: min(1040px, 100%);
+  margin: 0 auto;
+  padding: 18px 16px 48px;
+}
+
+.topBar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 14px;
+  padding: 10px 0 14px;
+}
+
+.brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 999px;
+  background: rgba(143,178,255,0.9);
+  box-shadow: 0 0 28px rgba(143,178,255,0.35);
+}
+
+.brandText {
+  color: rgba(255,255,255,0.8);
+  font-weight: 650;
+  font-size: 14px;
+}
+
+.hero {
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 20px;
+  background: rgba(255,255,255,0.05);
+  box-shadow: 0 20px 60px rgba(0,0,0,0.35);
+  padding: 18px;
+}
+
+.heroGrid {
+  display: grid;
+  grid-template-columns: 1.6fr 1fr;
+  gap: 16px;
+}
+
+@media (max-width: 900px) {
+  .heroGrid { grid-template-columns: 1fr; }
+}
+
+.h1 {
+  margin: 0;
+  font-size: 34px;
+  letter-spacing: -0.4px;
+}
+
+.headline {
+  margin: 8px 0 0;
+  font-size: 16px;
+  color: rgba(255,255,255,0.8);
+}
+
+.pitch {
+  margin: 10px 0 0;
+  color: rgba(255,255,255,0.72);
+  line-height: 1.6;
+  max-width: 70ch;
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 14px;
+}
+
+.action {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 12px;
+  border-radius: 14px;
+  background: rgba(255,255,255,0.07);
+  border: 1px solid rgba(255,255,255,0.12);
+  color: rgba(255,255,255,0.86);
+  font-weight: 650;
+  font-size: 14px;
+}
+
+.action:hover {
+  background: rgba(255,255,255,0.1);
+}
+
+.summary {
+  border-radius: 18px;
+  border: 1px solid rgba(255,255,255,0.12);
+  background: rgba(255,255,255,0.04);
+  padding: 14px;
+}
+
+.summaryTitle {
+  font-weight: 700;
+  color: rgba(255,255,255,0.9);
+}
+
+.summaryList {
+  margin: 10px 0 0 18px;
+  color: rgba(255,255,255,0.72);
+  line-height: 1.65;
+}
+
+.nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  padding: 14px 6px;
+  margin-top: 6px;
+}
+
+.nav a {
+  padding: 8px 10px;
+  border-radius: 12px;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.1);
+  color: rgba(255,255,255,0.78);
+  font-size: 14px;
+}
+
+.nav a:hover {
+  background: rgba(255,255,255,0.08);
+}
+
+.section {
+  margin-top: 22px;
+}
+
+.h2 {
+  margin: 0 0 10px;
+  font-size: 18px;
+  letter-spacing: 0.2px;
+}
+
+.cards {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+@media (max-width: 900px) {
+  .cards { grid-template-columns: 1fr; }
+}
+
+.card {
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 18px;
+  background: rgba(255,255,255,0.05);
+  padding: 14px;
+}
+
+.cardTop {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  flex-wrap: wrap;
+  align-items: baseline;
+}
+
+.cardTitle {
+  font-weight: 750;
+  color: rgba(255,255,255,0.92);
+}
+
+.cardMeta {
+  color: rgba(255,255,255,0.62);
+  font-size: 13px;
+}
+
+.cardMetaStrong {
+  margin-top: 6px;
+  color: rgba(255,255,255,0.8);
+  font-size: 14px;
+}
+
+.cardText {
+  margin: 10px 0 0;
+  color: rgba(255,255,255,0.72);
+  line-height: 1.6;
+}
+
+.bullets {
+  margin: 10px 0 0 18px;
+  color: rgba(255,255,255,0.72);
+  line-height: 1.6;
+}
+
+.stack {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.pill {
+  display: inline-flex;
+  padding: 6px 8px;
+  border-radius: 999px;
+  border: 1px solid rgba(255,255,255,0.12);
+  background: rgba(255,255,255,0.04);
+  font-size: 12px;
+  color: rgba(255,255,255,0.76);
+}
+
+.links {
+  margin-top: 10px;
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.link {
+  padding: 8px 10px;
+  border-radius: 12px;
+  background: rgba(143,178,255,0.12);
+  border: 1px solid rgba(143,178,255,0.25);
+  color: rgba(255,255,255,0.88);
+  font-size: 13px;
+}
+
+.details {
+  margin-top: 12px;
+  border-top: 1px solid rgba(255,255,255,0.1);
+  padding-top: 10px;
+}
+
+.summaryRow {
+  cursor: pointer;
+  color: rgba(255,255,255,0.86);
+  font-weight: 650;
+}
+
+.caseStudy {
+  margin-top: 10px;
+  display: grid;
+  gap: 10px;
+}
+
+.caseBlock {
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 14px;
+  padding: 10px;
+}
+
+.caseTitle {
+  font-weight: 750;
+  font-size: 13px;
+  color: rgba(255,255,255,0.88);
+}
+
+.caseText {
+  margin: 8px 0 0;
+  color: rgba(255,255,255,0.72);
+  line-height: 1.6;
+}
+
+.toolGrid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+
+@media (max-width: 1000px) {
+  .toolGrid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 700px) {
+  .toolGrid { grid-template-columns: 1fr; }
+}
+
+.toolCard {
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 18px;
+  background: rgba(255,255,255,0.05);
+  padding: 14px;
+}
+
+.toolTitle {
+  font-weight: 800;
+  margin-bottom: 10px;
+}
+
+.toolItems {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.footer {
+  margin-top: 26px;
+  padding-top: 14px;
+  border-top: 1px solid rgba(255,255,255,0.1);
+}
+
+.footerInner {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+}
+
+.footerText {
+  color: rgba(255,255,255,0.66);
+}
+
+.footerCta {
+  padding: 10px 12px;
+  border-radius: 14px;
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.12);
+}

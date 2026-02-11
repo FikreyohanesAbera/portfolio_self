@@ -1,0 +1,65 @@
+.wrap {
+  position: absolute;
+  left: 16px;
+  top: 84px;
+  width: 320px;
+  z-index: 50;
+  pointer-events: auto;
+
+  background: rgba(10, 12, 18, 0.72);
+  border: 1px solid rgba(180, 200, 255, 0.18);
+  border-radius: 14px;
+  padding: 12px;
+  backdrop-filter: blur(12px);
+  color: rgba(235, 242, 255, 0.92);
+}
+
+.title {
+  font-size: 13px;
+  letter-spacing: 0.02em;
+  opacity: 0.95;
+  margin-bottom: 10px;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 8px;
+}
+
+.btn {
+  text-align: left;
+  padding: 10px 10px;
+  border-radius: 12px;
+
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(180, 200, 255, 0.14);
+  color: rgba(235, 242, 255, 0.92);
+  cursor: pointer;
+}
+
+.btn:hover {
+  background: rgba(255, 255, 255, 0.06);
+  border-color: rgba(180, 200, 255, 0.22);
+}
+
+.btn:focus-visible {
+  outline: 2px solid rgba(180, 205, 255, 0.7);
+  outline-offset: 2px;
+}
+
+.btnLabel {
+  font-size: 13px;
+  margin-bottom: 2px;
+}
+
+.btnHint {
+  font-size: 12px;
+  opacity: 0.78;
+}
+
+.note {
+  margin-top: 10px;
+  font-size: 12px;
+  opacity: 0.75;
+}
